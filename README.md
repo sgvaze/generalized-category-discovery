@@ -1,9 +1,103 @@
 # Generalized Category Discovery
 
-This repo is a placeholder for code for our paper: [Generalized Category Discovery](https://arxiv.org/abs/2201.02609)
+This repo contains code for our paper: [Generalized Category Discovery](https://www.robots.ox.ac.uk/~vgg/research/gcd/)
 
-> **Abstract:** *In this paper, we consider a highly general image recognition setting wherein, given a labelled and unlabelled set of images, the task is to categorize all images in the unlabelled set. Here, the unlabelled images may come from labelled classes or from novel ones. Existing recognition methods are not able to deal with this setting, because they make several restrictive assumptions, such as the unlabelled instances only coming from known --- or unknown --- classes and the number of unknown classes being known a-priori. We address the more unconstrained setting, naming it `Generalized Category Discovery', and challenge all these assumptions. We first establish strong baselines by taking state-of-the-art algorithms from novel category discovery and adapting them for this task. Next, we propose the use of vision transformers with contrastive representation learning for this open world setting. We then introduce a simple yet effective semi-supervised $k$-means method to cluster the unlabelled data into seen and unseen classes automatically, substantially outperforming the baselines. Finally, we also propose a new approach to estimate the number of classes in the unlabelled data. We thoroughly evaluate our approach on public datasets for generic object classification including CIFAR10, CIFAR100 and ImageNet-100, and for fine-grained visual recognition including CUB, Stanford Cars and Herbarium19, benchmarking on this new setting to foster future research.*
+Given a dataset, some of which is labelled, *Generalized Category Discovery* is the task
+of assigning a category to all the unlabelled instances. Unlabelled instances could come from labelled or 'New' classes.
 
 ![image](https://github.com/sgvaze/generalized-category-discovery/blob/main/assets/main_img.png)
 
-## Code Coming Soon!
+## Contents
+[:boom: 1. Updates](#updates)
+
+[:running: 2. Running](#running)
+
+[:1234: 3. Results](#results)
+
+[:clipboard: 5. Citation](#cite)
+
+## <a name="updates"/> :boom: Updates
+
+### Updates to paper since pre-print (updated PDF available [here](https://www.robots.ox.ac.uk/~vgg/research/gcd/resources/generalized_category_discovery.pdf), ArXiv updating soon)
+
+* We introduced a more rigorous evaluation metric - when computing ACC, we compute the Hungarian algorithm only once across all unlabelled data.
+   * This single set of linear assignments is then used to compute ACC on 'Old' and 'New' class subsets (see Appendix E)
+   * Practically, this involves switching from 'v1' to 'v2' evaluation in ```./project_utils/cluster_and_log_utils.py```
+
+## <a name="running"/> :running: Running
+
+### Dependencies
+
+```
+pip install -r requirements.txt
+```
+
+### Config
+
+Set paths to datasets, pre-trained models and desired log directories in ```config.py```
+
+Set ```SAVE_DIR``` (logfile destination) and ```PYTHON``` (path to python interpreter) in ```bash_scripts``` scripts.
+
+### Datasets
+
+We use fine-grained benchmarks in this paper, including:                                                                                                                    
+                                                                                                                                                                  
+* [The Semantic Shift Benchmark (SSB)](https://github.com/sgvaze/osr_closed_set_all_you_need#ssb) and [Herbarium19](https://www.kaggle.com/c/herbarium-2019-fgvc6)
+
+We also use generic object recognition datasets, including:
+
+* [CIFAR-10/100](https://pytorch.org/vision/stable/datasets.html) and [ImageNet](https://image-net.org/download.php)
+
+
+### Scripts
+
+**Train representation**:
+
+```
+bash bash_scripts/contrastive_train.sh
+```
+
+**Extract features**: Extract features to prepare for semi-supervised k-means. 
+It will require changing the path for the model with which to extract features in ```warmup_model_dir```
+
+```
+bash bash_scripts/extract_features.sh
+```
+
+**Fit semi-supervised k-means**:
+
+```
+bash bash_scripts/k_means.sh
+```
+
+### Note on semi-supervised k-means
+Under the old evaluation metric ('v1') we found that semi-supervised k-means consistently boosted performance
+over standard k-means, on 'Old' and 'New' data subsets. 
+When we changed to 'v2' evaluation, re-evaluated models in Tables {2,3,5} 
+(including the ablation) and updated the figures.
+
+However, recently, we have found that SS-k-means can be sensitive to bad initialisation under 'v2', and can 
+sometimes *lower* performance on some datasets. Increasing the number of inits for SS-k-means can help. 
+We are investigating this further now - suggestions and PRs welcome!
+
+## <a name="results"/> :1234: Results
+
+Results from re-running models with this repo compared to reported numbers:
+
+| **Dataset**       | **All** | **Old** | **New** |
+|---------------|------------|---------------|-----------|
+| Stanford Cars (paper) | 39.0 | 57.6 | 29.9 |
+| Stanford Cars (repo) | 39.9 | 58.5 | 30.9 |
+| CIFAR100 (paper) | 70.8 | 77.6 | 57.0 |
+| CIFAR100 (repo) | 71.3 | 77.4 | 59.1 |
+
+## <a name="cite"/> :clipboard: Citation
+
+If you use this code in your research, please consider citing our paper:
+```
+@InProceedings{vaze2022gcd,
+               title={Generalized Category Discovery},
+               author={Sagar Vaze and Kai Han and Andrea Vedaldi and Andrew Zisserman},
+               booktitle={IEEE Conference on Computer Vision and Pattern Recognition},
+               year={2022}}
+```
