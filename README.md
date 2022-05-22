@@ -14,7 +14,7 @@ of assigning a category to all the unlabelled instances. Unlabelled instances co
 
 [:1234: 3. Results](#results)
 
-[:clipboard: 5. Citation](#cite)
+[:clipboard: 4. Citation](#cite)
 
 ## <a name="updates"/> :boom: Updates
 
@@ -73,7 +73,7 @@ bash bash_scripts/k_means.sh
 ### Note on semi-supervised k-means
 Under the old evaluation metric ('v1') we found that semi-supervised k-means consistently boosted performance
 over standard k-means, on 'Old' and 'New' data subsets. 
-When we changed to 'v2' evaluation, re-evaluated models in Tables {2,3,5} 
+When we changed to 'v2' evaluation, we re-evaluated models in Tables {2,3,5} 
 (including the ablation) and updated the figures.
 
 However, recently, we have found that SS-k-means can be sensitive to bad initialisation under 'v2', and can 
